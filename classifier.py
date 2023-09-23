@@ -40,12 +40,20 @@ class BertSentClassifier(torch.nn.Module):
                 param.requires_grad = True
 
         # todo
-        raise NotImplementedError
+        self.linear = torch.nn.Linear(config.hidden_size, self.num_labels)
+        self.dropout = torch.nn.Dropout(config.hidden_dropout_prob)
+        #raise NotImplementedError
 
     def forward(self, input_ids, attention_mask):
         # todo
         # the final bert contextual embedding is the hidden state of the [CLS] token (the first token)
-        raise NotImplementedError
+        bert_layers = self.bert(input_ids, attention_mask)
+        #print(bert_layers)
+        cls_layer = self.dropout(bert_layers['pooler_output'])
+        cls_layer = self.linear(cls_layer)
+        logits = F.log_softmax(cls_layer, dim=-1)
+        return logits
+        #raise NotImplementedError
 
 # create a custom Dataset Class to be used for the dataloader
 class BertDataset(Dataset):
